@@ -1,0 +1,22 @@
+### Get all users
+GET https://httpbin.org/anything/users
+Accept: application/json
+
+### Create a new user
+POST https://httpbin.org/anything/users
+Content-Type: application/json
+
+{
+  "name": "hainet50b"
+}
+
+### Update a user
+PUT https://httpbin.org/anything/users/42
+Content-Type: application/json
+
+{
+  "name": "programacho.com"
+}
+
+### Delete a user
+DELETE https://httpbin.org/anything/users/42

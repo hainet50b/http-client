@@ -1,0 +1,11 @@
+[
+  {
+    "label": "HTTP: echo foo",
+    "command": "echo",
+    "args": ["foo"],
+    "tags": ["http-request"],
+    "reveal": "always",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false
+  }
+]
