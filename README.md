@@ -1,4 +1,4 @@
-# HTTP Client
+# Zed HTTP Client
 
 ⚠️ This project is under active development.
 

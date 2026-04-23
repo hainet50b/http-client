@@ -1,10 +1,13 @@
 [
   {
-    "label": "HTTP: echo foo",
-    "command": "echo",
-    "args": ["foo"],
+    "label": "HTTP Request: $ZED_CUSTOM_method $ZED_CUSTOM_url",
+    "command": "curl",
+    "args": [
+      "-X", "$ZED_CUSTOM_method",
+      "$ZED_CUSTOM_url"
+    ],
     "tags": ["http-request"],
-    "reveal": "always",
+    "reveal": "no_focus",
     "use_new_terminal": false,
     "allow_concurrent_runs": false
   }
