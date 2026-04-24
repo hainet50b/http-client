@@ -28,3 +28,9 @@ Content-Type: application/json
 
 ### Delete a user
 DELETE https://httpbin.org/anything/users/42
+
+### Send a plain text note
+POST https://httpbin.org/anything/notes
+Content-Type: text/plain
+
+Hello from Zed HTTP Client.
