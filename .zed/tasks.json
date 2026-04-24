@@ -1,12 +1,13 @@
 [
   {
     "label": "$ZED_CUSTOM_method $ZED_CUSTOM_url",
-    "command": "curl",
+    "command": "$ZED_WORKTREE_ROOT/httpc/target/debug/httpc",
     "args": [
-      "-X",
+      "--method",
       "$ZED_CUSTOM_method",
+      "--url",
       "$ZED_CUSTOM_url",
-      "--data-raw",
+      "--body",
       "'${ZED_CUSTOM_body:-}'",
     ],
     "tags": ["http-request"],
