@@ -1,3 +1,5 @@
+(request_separator) @tag
+
 (method) @keyword
 (target_url) @string.special.url
 (http_version) @constant
