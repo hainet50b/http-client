@@ -1,26 +1,32 @@
+use clap::Parser;
 use std::process::Command;
 
-fn main() {
-    let mut method = String::new();
-    let mut url = String::new();
-    let mut body = String::new();
+/// Zed HTTP Client — backend CLI that executes requests defined in .http files.
+#[derive(Parser)]
+#[command(name = "httpc", version, about)]
+struct Args {
+    /// HTTP method (GET, POST, PUT, DELETE, ...)
+    #[arg(long)]
+    method: String,
 
-    let mut args = std::env::args().skip(1);
-    while let Some(arg) = args.next() {
-        match arg.as_str() {
-            "--method" => method = args.next().unwrap_or_default(),
-            "--url" => url = args.next().unwrap_or_default(),
-            "--body" => body = args.next().unwrap_or_default(),
-            _ => {}
-        }
-    }
+    /// Request URL
+    #[arg(long)]
+    url: String,
+
+    /// Request body (empty for methods without body)
+    #[arg(long, default_value = "")]
+    body: String,
+}
+
+fn main() {
+    let args = Args::parse();
 
     let status = Command::new("curl")
         .arg("-X")
-        .arg(&method)
-        .arg(&url)
+        .arg(&args.method)
+        .arg(&args.url)
         .arg("--data-raw")
-        .arg(&body)
+        .arg(&args.body)
         .status()
         .expect("failed to spawn curl");
 
