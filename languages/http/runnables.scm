@@ -1,4 +1,5 @@
 ((request
   method: (method) @method @run
-  url: (target_url) @url) @_request
+  url: (target_url) @url
+  (json_body)? @body) @_request
   (#set! tag http-request))
