@@ -1,13 +1,13 @@
 [
   {
-    "label": "HTTP Request: $ZED_CUSTOM_method $ZED_CUSTOM_url",
+    "label": "$ZED_CUSTOM_method $ZED_CUSTOM_url",
     "command": "curl",
     "args": [
       "-X",
       "$ZED_CUSTOM_method",
       "$ZED_CUSTOM_url",
       "--data-raw",
-      "${ZED_CUSTOM_body:-\"\"}",
+      "'${ZED_CUSTOM_body:-}'",
     ],
     "tags": ["http-request"],
     "reveal": "no_focus",

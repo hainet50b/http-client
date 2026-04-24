@@ -10,6 +10,14 @@ Content-Type: application/json
   "name": "hainet50b"
 }
 
+### Create a new user (XML)
+POST https://httpbin.org/anything/users
+Content-Type: application/xml
+
+<user>
+  <name>hainet50b</name>
+</user>
+
 ### Update a user
 PUT https://httpbin.org/anything/users/42
 Content-Type: application/json

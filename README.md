@@ -13,4 +13,7 @@ Feature development will follow IntelliJ IDEA's HTTP Client as closely as possib
 
 ## Acknowledgments
 
-This extension uses the [`rest-nvim/tree-sitter-http`](https://github.com/rest-nvim/tree-sitter-http) grammar for parsing `.http` files. It is distributed under the MIT License (© 2021 NTBBloodbath).
+This extension uses the following third-party tree-sitter grammars:
+
+- [`rest-nvim/tree-sitter-http`](https://github.com/rest-nvim/tree-sitter-http) for parsing `.http` files — MIT License, © 2021 NTBBloodbath.
+- [`tree-sitter-grammars/tree-sitter-xml`](https://github.com/tree-sitter-grammars/tree-sitter-xml) for highlighting XML request bodies — MIT License, © 2023 ObserverOfTime.

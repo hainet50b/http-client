@@ -9,3 +9,8 @@ repository = "https://github.com/hainet50b/http-client"
 [grammars.http]
 repository = "https://github.com/rest-nvim/tree-sitter-http"
 rev = "db8b4398de90b6d0b6c780aba96aaa2cd8e9202c"
+
+[grammars.xml]
+repository = "https://github.com/tree-sitter-grammars/tree-sitter-xml"
+rev = "5000ae8f22d11fbe93939b05c1e37cf21117162d"
+path = "xml"
