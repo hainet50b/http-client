@@ -84,3 +84,139 @@ pub fn parse_request_at(content: &str, line: usize) -> Result<Request, String> {
         body,
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parses_simple_get_request() {
+        let content = "GET https://example.com/api\nAccept: application/json\n";
+        let req = parse_request_at(content, 1).unwrap();
+        assert_eq!(req.method, "GET");
+        assert_eq!(req.url, "https://example.com/api");
+        assert_eq!(
+            req.headers,
+            vec![("Accept".to_string(), "application/json".to_string())]
+        );
+        assert_eq!(req.body, "");
+    }
+
+    #[test]
+    fn parses_post_with_json_body() {
+        let content =
+            "POST https://example.com/users\nContent-Type: application/json\n\n{\"name\":\"alice\"}\n";
+        let req = parse_request_at(content, 1).unwrap();
+        assert_eq!(req.method, "POST");
+        assert_eq!(req.url, "https://example.com/users");
+        assert_eq!(
+            req.headers,
+            vec![(
+                "Content-Type".to_string(),
+                "application/json".to_string()
+            )]
+        );
+        assert_eq!(req.body, "{\"name\":\"alice\"}");
+    }
+
+    #[test]
+    fn parses_url_with_query_string() {
+        let content = "GET /api?role=admin&limit=10\n";
+        let req = parse_request_at(content, 1).unwrap();
+        assert_eq!(req.url, "/api?role=admin&limit=10");
+    }
+
+    #[test]
+    fn ignores_http_version_after_url() {
+        let content = "GET /api HTTP/1.1\n";
+        let req = parse_request_at(content, 1).unwrap();
+        assert_eq!(req.method, "GET");
+        assert_eq!(req.url, "/api");
+    }
+
+    #[test]
+    fn handles_no_body() {
+        let content = "DELETE /users/42\n";
+        let req = parse_request_at(content, 1).unwrap();
+        assert_eq!(req.method, "DELETE");
+        assert_eq!(req.url, "/users/42");
+        assert!(req.headers.is_empty());
+        assert_eq!(req.body, "");
+    }
+
+    #[test]
+    fn handles_multiline_body() {
+        let content =
+            "POST /a\nContent-Type: application/xml\n\n<root>\n  <child>value</child>\n</root>\n";
+        let req = parse_request_at(content, 1).unwrap();
+        assert_eq!(req.body, "<root>\n  <child>value</child>\n</root>");
+    }
+
+    #[test]
+    fn parses_multiple_headers() {
+        let content =
+            "GET /api\nAccept: application/json\nAuthorization: Bearer token\nX-Trace-Id: abc\n";
+        let req = parse_request_at(content, 1).unwrap();
+        assert_eq!(
+            req.headers,
+            vec![
+                ("Accept".to_string(), "application/json".to_string()),
+                ("Authorization".to_string(), "Bearer token".to_string()),
+                ("X-Trace-Id".to_string(), "abc".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn header_value_can_contain_colon() {
+        let content = "GET /api\nContent-Type: application/json; charset=utf-8\n";
+        let req = parse_request_at(content, 1).unwrap();
+        assert_eq!(req.headers[0].1, "application/json; charset=utf-8");
+    }
+
+    #[test]
+    fn skips_comments_above_method_line() {
+        let content = "# this is a comment\n// also a comment\nGET /api\n";
+        let req = parse_request_at(content, 1).unwrap();
+        assert_eq!(req.method, "GET");
+    }
+
+    #[test]
+    fn parses_request_within_separated_blocks() {
+        let content = "### first\nGET /a\n\n### second\nPOST /b\n";
+        let req = parse_request_at(content, 5).unwrap();
+        assert_eq!(req.method, "POST");
+        assert_eq!(req.url, "/b");
+    }
+
+    #[test]
+    fn resolves_request_when_clicked_on_body_line() {
+        let content =
+            "POST /users\nContent-Type: application/json\n\n{\n  \"name\": \"alice\"\n}\n";
+        let req = parse_request_at(content, 5).unwrap();
+        assert_eq!(req.method, "POST");
+        assert_eq!(req.body, "{\n  \"name\": \"alice\"\n}");
+    }
+
+    #[test]
+    fn resolves_request_when_clicked_on_header_line() {
+        let content = "GET /api\nAccept: application/json\nX-Custom: value\n";
+        let req = parse_request_at(content, 2).unwrap();
+        assert_eq!(req.method, "GET");
+        assert_eq!(req.headers.len(), 2);
+    }
+
+    #[test]
+    fn errors_on_out_of_range_line() {
+        let content = "GET /api\n";
+        let result = parse_request_at(content, 5);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn errors_on_block_without_method_line() {
+        let content = "### only separator\n# comment line\n\n";
+        let result = parse_request_at(content, 2);
+        assert!(result.is_err());
+    }
+}
