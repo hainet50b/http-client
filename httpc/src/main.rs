@@ -1,34 +1,41 @@
 use clap::Parser;
+use std::fs;
+use std::path::PathBuf;
 use std::process::Command;
+
+mod parser;
 
 /// Zed HTTP Client — backend CLI that executes requests defined in .http files.
 #[derive(Parser)]
 #[command(name = "httpc", version, about)]
 struct Args {
-    /// HTTP method (GET, POST, PUT, DELETE, ...)
+    /// Path to the .http file
     #[arg(long)]
-    method: String,
+    file: PathBuf,
 
-    /// Request URL
+    /// 1-based line number; the request containing this line is executed
     #[arg(long)]
-    url: String,
-
-    /// Request body (empty for methods without body)
-    #[arg(long, default_value = "")]
-    body: String,
+    line: usize,
 }
 
 fn main() {
     let args = Args::parse();
 
-    let status = Command::new("curl")
-        .arg("-X")
-        .arg(&args.method)
-        .arg(&args.url)
-        .arg("--data-raw")
-        .arg(&args.body)
-        .status()
-        .expect("failed to spawn curl");
+    let content = fs::read_to_string(&args.file)
+        .unwrap_or_else(|e| panic!("failed to read {}: {}", args.file.display(), e));
+    let req = parser::parse_request_at(&content, args.line)
+        .unwrap_or_else(|e| panic!("parse error: {}", e));
 
+    let mut cmd = Command::new("curl");
+    cmd.arg("-X").arg(&req.method);
+    cmd.arg(&req.url);
+    for (name, value) in &req.headers {
+        cmd.arg("-H").arg(format!("{name}: {value}"));
+    }
+    if !req.body.is_empty() {
+        cmd.arg("--data-raw").arg(&req.body);
+    }
+
+    let status = cmd.status().expect("failed to spawn curl");
     std::process::exit(status.code().unwrap_or(1));
 }
